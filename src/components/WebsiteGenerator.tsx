@@ -64,13 +64,16 @@ const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({
     if (!websitePrompt.trim()) return;
 
     setIsGenerating(true);
-    
-    try {
-      const sectionsPrompt = selectedSections.length > 0 
-        ? `Include these sections: ${selectedSections.join(', ')}. ` 
-        : '';
 
-      const fullPrompt = `${sectionsPrompt}${websitePrompt}. 
+    let success = false;
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        const sectionsPrompt = selectedSections.length > 0 
+          ? `Include these sections: ${selectedSections.join(', ')}. ` 
+          : '';
+
+        const fullPrompt = `${sectionsPrompt}${websitePrompt}. 
 
 IMPORTANT: Create a complete, modern, responsive HTML website following these specifications:
 
@@ -114,19 +117,19 @@ IMPORTANT: Create a complete, modern, responsive HTML website following these sp
 
 Return only a single HTML file with embedded CSS and JavaScript. Use modern best practices, semantic HTML, and ensure the design looks sleek and professional across all devices.`;
 
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Title': 'AI Website Builder'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: [
-            {
-              role: 'system',
-              content: `You are an expert web developer and website planner. Your job is to first analyze the user’s request and then generate a tailored plan and prototype.
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'X-Title': 'AI Website Builder'
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages: [
+              {
+                role: 'system',
+                content: `You are an expert web developer and website planner. Your job is to first analyze the user’s request and then generate a tailored plan and prototype.
 
 Step 1 — Planning:
 - Read the user’s request carefully.
@@ -173,34 +176,39 @@ use the upper api to generate image for wesbite and embed generated image as lin
 - Ensure good performance, low CPU usage, and smooth behavior on both mobile and desktop.
 
 Return the raw HTML file content as the final response. No Markdown, no explanations, and no extra text.`
-            },
-            {
-              role: 'user',
-              content: fullPrompt
-            }
-          ],
-          max_tokens: 8000,
-          temperature: 0.6
-        })
-      });
+              },
+              {
+                role: 'user',
+                content: fullPrompt
+              }
+            ],
+            max_tokens: 8000,
+            temperature: 0.6
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const generatedHTML = data.choices[0]?.message?.content || '';
+        
+        // Clean up the response to ensure it's proper HTML
+        const cleanHTML = generatedHTML.replace(/```html|```/g, '').trim();
+        
+        onGenerate(cleanHTML);
+        success = true;
+        break;
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === 5) {
+          alert('Error generating website after 5 attempts. Please check your API key and try again.');
+        }
       }
-
-      const data = await response.json();
-      const generatedHTML = data.choices[0]?.message?.content || '';
-      
-      // Clean up the response to ensure it's proper HTML
-      const cleanHTML = generatedHTML.replace(/```html|```/g, '').trim();
-      
-      onGenerate(cleanHTML);
-    } catch (error) {
-      console.error('Error generating website:', error);
-      alert('Error generating website. Please check your API key and try again.');
-    } finally {
-      setIsGenerating(false);
     }
+
+    setIsGenerating(false);
   };
 
   const toggleSection = (sectionId: string) => {
