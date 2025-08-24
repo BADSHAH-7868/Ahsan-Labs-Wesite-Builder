@@ -51,7 +51,7 @@ function App() {
         style={{ y, opacity }}
       >
         {/* Header */}
-        <header className="mt-11 sm:mt-9 relative z-10 px-4 sm:px-6">
+        <header className="mt-14 sm:mt-17 relative z-10 px-4 sm:px-6">
           <motion.div
             className="flex items-center justify-between max-w-7xl mx-auto"
             initial={{ opacity: 0, y: -20 }}
