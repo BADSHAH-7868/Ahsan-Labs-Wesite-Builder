@@ -51,7 +51,7 @@ function App() {
         style={{ y, opacity }}
       >
         {/* Header */}
-        <header className="mt-6 sm:mt-9 relative z-10 px-4 sm:px-6">
+        <header className="mt-14 sm:mt-9 relative z-10 px-4 sm:px-6">
           <motion.div
             className="flex items-center justify-between max-w-7xl mx-auto"
             initial={{ opacity: 0, y: -20 }}
@@ -205,7 +205,7 @@ function App() {
       <ExampleGallery />
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-black/20 backdrop-blur-md">
+      <footer className="relative display-flex z-10 border-t border-white/10 bg-black/20 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
