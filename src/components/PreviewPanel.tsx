@@ -33,15 +33,16 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
   return (
     <motion.div 
-      className="max-w-7xl mx-auto"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"  // ✅ padding for small screens
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+        
         {/* Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center">
               <motion.button
                 className="mr-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
@@ -52,14 +53,15 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 <ArrowLeft className="w-5 h-5" />
               </motion.button>
               <div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                   Website Preview
                 </h3>
-                <p className="text-gray-400">Review your generated website</p>
+                <p className="text-gray-400 text-sm sm:text-base">Review your generated website</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-end items-center gap-2 sm:gap-3">
               {/* View Mode Toggle */}
               <div className="flex bg-black/20 rounded-lg p-1">
                 <button
@@ -90,7 +92,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
               {/* Show Code Toggle */}
               <motion.button
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 ${
+                className={`px-3 py-2 text-sm sm:text-base rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 ${
                   showCode 
                     ? 'bg-purple-500 text-white' 
                     : 'bg-white/10 text-gray-300 hover:bg-white/20'
@@ -100,12 +102,11 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 whileTap={{ scale: 0.95 }}
               >
                 <Code className="w-4 h-4" />
-                <span>{showCode ? 'Hide Code' : 'Show Code'}</span>
+                <span>{showCode ? 'Hide' : 'Show'} Code</span>
               </motion.button>
 
-              {/* Action Buttons */}
               <motion.button
-                className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center space-x-2"
+                className="px-3 py-2 text-sm sm:text-base bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center space-x-2"
                 onClick={onDownload}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -115,20 +116,20 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
               </motion.button>
 
               <motion.button
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2"
+                className="px-3 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2"
                 onClick={onEdit}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Edit className="w-4 h-4" />
-                <span>Edit with AI</span>
+                <span>Edit</span>
               </motion.button>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {showCode ? (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
@@ -145,17 +146,17 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
                     alert('Code copied to clipboard!');
                   }}
                 >
-                  Copy Code
+                  Copy
                 </button>
               </div>
-              <div className="max-h-96 overflow-auto">
+              <div className="max-h-80 sm:max-h-96 overflow-auto text-sm">
                 <SyntaxHighlighter
                   language="html"
                   style={tomorrow}
                   customStyle={{
                     margin: 0,
                     background: 'transparent',
-                    fontSize: '14px'
+                    fontSize: '13px'
                   }}
                 >
                   {generatedWebsite}
@@ -169,7 +170,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
               className="flex justify-center"
             >
               <div 
-                className={`bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-500 ${
+                className={`bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-500 w-full sm:w-auto ${
                   viewMode === 'mobile' ? 'mx-auto' : ''
                 }`}
                 style={getPreviewDimensions()}
@@ -186,12 +187,9 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
         </div>
 
         {/* Footer Info */}
-        <div className="px-6 py-4 border-t border-white/10 bg-black/20">
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <div className="flex items-center space-x-4">
-              <span>Generated By Ahsan Labs Web Builder.</span>
-
-            </div>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-white/10 bg-black/20">
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-gray-400 gap-2">
+            <span className="text-center sm:text-left">Generated By Ahsan Labs Web Builder.</span>
             <div className="flex items-center space-x-2">
               <Eye className="w-4 h-4" />
               <span>Preview Mode: {viewMode}</span>
