@@ -69,71 +69,53 @@ const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({
 
     for (let attempt = 1; attempt <= 5; attempt++) {
       try {
-        // Dynamically construct section-specific instructions
-        const sectionInstructions = selectedSections.map(section => {
-          switch (section) {
-            case 'header':
-              return `Header: Include a glass-morphism navigation bar with smooth hover transitions and a responsive collapsible menu for mobile devices.`;
-            case 'hero':
-              return `Hero: Create a full-width hero section with engaging visuals, smooth parallax scrolling with floating elements, bold headline typography, and a prominent call-to-action button with hover animation.`;
-            case 'main':
-              return `Main Content: Design a grid layout with smooth hover scale/tilt effects on content cards, subtle particle/floating background, and modern cards with shadow and 3D depth.`;
-            case 'sidebar':
-              return `Sidebar: Include a responsive sidebar with interactive widgets, smooth transitions, and touch-friendly interactions for navigation or additional content.`;
-            case 'footer':
-              return `Footer: Design a dark gradient footer with social media links featuring hover glow effects, contact information with icons, and a sleek newsletter signup form.`;
-            default:
-              return '';
-          }
-        }).filter(instruction => instruction).join(' ');
-
         const sectionsPrompt = selectedSections.length > 0 
-          ? `Include only these sections: ${selectedSections.join(', ')}. ${sectionInstructions}`
-          : 'Include a minimal website structure with essential sections based on the description.';
+          ? `Include these sections: ${selectedSections.join(', ')}. ` 
+          : '';
 
-        const fullPrompt = `${sectionsPrompt} ${websitePrompt}. 
+        const fullPrompt = `${sectionsPrompt}${websitePrompt}. 
 
 IMPORTANT: Create a complete, modern, responsive HTML website following these specifications:
 
 1. Overall Theme & Style:
    - Dark, elegant professional
-   - Color scheme: deep blacks, dark blue, dark gray, and professional
+   - Color scheme: deep blacks dark blue dark gray and professional
    - Modern, clean typography with optional subtle glow
 
-2. Interactive Elements:
+2. Hero Section:
+   - Full-width hero with engaging visuals
+   - Smooth parallax scroll with floating elements
+   - Bold headline typography
+   - Prominent call-to-action button with hover animation
+
+3. Navigation:
+   - Glass-morphism effect with backdrop blur
+   - Smooth hover transitions and responsive collapsible menu
+
+4. Content Sections:
+   - Grid layouts with smooth hover scale/tilt
+   - Light particle/floating background (subtle)
+   - Modern cards with shadow and 3D depth
+
+5. Interactive Elements:
    - Hover tilt effects on cards
    - Scroll-triggered fade/slide animations
    - Smooth scrolling transitions
    - Simple loader animation
 
-3. Responsive Design:
+6. Responsive Design:
    - Fluid typography scaling
    - Flexible grid adapting to all screens
    - Mobile-friendly animations
    - Touch-friendly interactions
 
-4. Technical Requirements:
-   - Return only a single HTML file with embedded CSS and JavaScript
-   - Use modern best practices, semantic HTML
-   - Ensure the design is sleek and professional across all devices
-   - Respect prefers-reduced-motion for accessibility
+7. Footer:
+   - Dark gradient background
+   - Social media links with hover glow
+   - Contact info with icons
+   - Newsletter signup with sleek form
 
-5. Image Generation:
-   const seed = Math.floor(Math.random() * 100000);
-   let imageUrl = \`https://image.pollinations.ai/prompt/\${encodeURIComponent(websitePrompt)}?width=800&height=600&seed=\${seed}&model=\${selectedModel}&format=jpeg&nologo=true\`;
-   Embed the generated image as a link in the hero or main section if applicable.
-
-- Prioritize:
-  • Semantic HTML
-  • Responsive layouts with flex/grid
-  • Fluid typography scaling
-  • Touch-friendly interactions
-  • Accessible controls with ARIA and skip links
-  • Progressive enhancement with graceful degradation
-- Use modern CSS (variables, transitions, transforms) and unobtrusive vanilla JavaScript for interactivity (no external frameworks).
-- Ensure good performance, low CPU usage, and smooth behavior on both mobile and desktop.
-
-Return the raw HTML file content as the final response. No Markdown, no explanations, and no extra text.`;
+Return only a single HTML file with embedded CSS and JavaScript. Use modern best practices, semantic HTML, and ensure the design looks sleek and professional across all devices.`;
 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
@@ -153,7 +135,7 @@ Step 1 — Planning:
 - Read the user’s request carefully.
 - Create a short structured PLAN before coding. The plan must describe:
   • Purpose of the website/tool
-  • Required sections and their roles (only those specified by the user)
+  • Required sections and their roles
   • Key features and interactions (only what is necessary for this request)
   • Suggested design style and color scheme
   • Technologies or APIs to be used (if any)
@@ -162,8 +144,36 @@ Step 1 — Planning:
 Step 2 — Website Generation:
 - Based on the plan, generate a single complete HTML file (DOCTYPE, <html>, <head>, <body>) containing embedded CSS and JavaScript only — no external asset downloads, no additional files, and no explanations.
 - The design must be sleek, professional, responsive, and dark-themed by default unless the plan suggests otherwise.
-- Only include the sections explicitly requested by the user: ${selectedSections.join(', ')}.
-- Use the provided image URL for embedding visuals in the appropriate section.
+
+-----images in website----
+
+
+           const seed = Math.floor(Math.random() * 100000);
+                    let imageUrl;
+                    switch (model) {
+                    case 'flux-pro':
+                    case 'flux-dev':
+                    case 'flux-schnell':
+                    imageUrl = https://image.pollinations.ai/prompt/{encodeURIComponent(enhancedPrompt)}?width={width}&height={height}&seed={seed}&model={model}&format=jpeg&nologo=true;
+                       
+                    
+
+
+
+use the upper api to generate image for wesbite and embed generated image as link in code .
+
+
+- Prioritize:
+  • Semantic HTML
+  • Responsive layouts with flex/grid
+  • Fluid typography scaling
+  • Touch-friendly interactions
+  • Accessible controls with ARIA and skip links
+  • Progressive enhancement with graceful degradation
+  • Respect for prefers-reduced-motion
+- Add subtle, tasteful visual effects (soft glows, hover tilt, gentle parallax) while avoiding gimmicks (large cursors, flashing, heavy particles).
+- Use modern CSS (variables, transitions, transforms) and unobtrusive vanilla JavaScript for interactivity (no external frameworks).
+- Ensure good performance, low CPU usage, and smooth behavior on both mobile and desktop.
 
 Return the raw HTML file content as the final response. No Markdown, no explanations, and no extra text.`
               },
