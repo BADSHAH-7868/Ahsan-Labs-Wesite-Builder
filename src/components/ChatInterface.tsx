@@ -55,83 +55,98 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setInputMessage('');
     setIsProcessing(true);
 
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'X-Title': 'AI Website Builder Chat'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert web developer assistant. The user will ask you to modify an existing HTML website. Always respond with the complete updated HTML code (including CSS and JavaScript) that incorporates their requested changes. Return only the HTML code without explanations or markdown formatting.'
-            },
-            {
-              role: 'user',
-              content: `Here is the current website code:\n\n${generatedWebsite}\n\nPlease make the following changes: ${inputMessage}\n\nReturn the complete updated HTML code.`
-            }
-          ],
-          max_tokens: 8000,
-          temperature: 0.7
-        })
-      });
+    let success = false;
 
-      if (!response.ok) {
-        const errBody = await response.text();
-        throw new Error(`API request failed: ${response.status} - ${errBody}`);
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'X-Title': 'AI Website Builder Chat'
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert web developer assistant. The user will ask you to modify an existing HTML website. Always respond with the complete updated HTML code (including CSS and JavaScript) that incorporates their requested changes. Return only the HTML code without explanations or markdown formatting.'
+              },
+              {
+                role: 'user',
+                content: `Here is the current website code:\n\n${generatedWebsite}\n\nPlease make the following changes: ${inputMessage}\n\nReturn the complete updated HTML code.`
+              }
+            ],
+            max_tokens: 8000,
+            temperature: 0.7
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Invalid API key');
+        }
+
+        const data = await response.json();
+        const assistantResponse =
+          data.choices[0]?.message?.content ||
+          data.choices[0]?.text ||
+          '';
+
+        // Clean HTML
+        let cleanHTML = assistantResponse
+          .replace(/```html|```/g, '')
+          .replace(/^Here.*?:/i, '')
+          .trim();
+
+        // Ensure HTML wrapper
+        if (cleanHTML && !(cleanHTML.includes('<!DOCTYPE html') || cleanHTML.includes('<html'))) {
+          cleanHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${cleanHTML}</body></html>`;
+        }
+
+        // Update preview
+        if (cleanHTML) {
+          setGeneratedWebsite(cleanHTML);
+        }
+
+        // Assistant message preview (first few lines of code)
+        const previewSnippet = cleanHTML
+          ? cleanHTML.split('\n').slice(0, 3).join('\n') + '\n...'
+          : '⚠️ The AI response was empty or invalid.';
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: previewSnippet,
+          timestamp: new Date()
+        };
+
+        // Add "Your task is done" message
+        const taskDoneMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          type: 'assistant',
+          content: '✅ Your task is done!',
+          timestamp: new Date()
+        };
+
+        setChatMessages(prev => [...prev, assistantMessage, taskDoneMessage]);
+        success = true;
+        break;
+      } catch (error: any) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === 5) {
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            type: 'assistant',
+            content: '❌ Error: Invalid API key',
+            timestamp: new Date()
+          };
+          setChatMessages(prev => [...prev, errorMessage]);
+        }
       }
-
-      const data = await response.json();
-      const assistantResponse =
-        data.choices[0]?.message?.content ||
-        data.choices[0]?.text ||
-        '';
-
-      // Clean HTML
-      let cleanHTML = assistantResponse
-        .replace(/```html|```/g, '')
-        .replace(/^Here.*?:/i, '')
-        .trim();
-
-      // Ensure HTML wrapper
-      if (cleanHTML && !(cleanHTML.includes('<!DOCTYPE html') || cleanHTML.includes('<html'))) {
-        cleanHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${cleanHTML}</body></html>`;
-      }
-
-      // Update preview
-      if (cleanHTML) {
-        setGeneratedWebsite(cleanHTML);
-      }
-
-      // Assistant message preview (first few lines of code)
-      const previewSnippet = cleanHTML
-        ? cleanHTML.split('\n').slice(0, 3).join('\n') + '\n...'
-        : '⚠️ The AI response was empty or invalid.';
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: previewSnippet,
-        timestamp: new Date()
-      };
-
-      setChatMessages(prev => [...prev, assistantMessage]);
-    } catch (error: any) {
-      console.error('Error processing message:', error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: `❌ Error: ${error.message || 'Something went wrong. Please try again.'}`,
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsProcessing(false);
     }
+
+    setIsProcessing(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
