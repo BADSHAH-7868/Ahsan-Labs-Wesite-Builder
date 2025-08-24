@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Wand2, ArrowLeft, Layers, Layout, Palette, Code } from 'lucide-react';
+import { Wand2, ArrowLeft, Layers, Layout, Palette, Code, User, Briefcase, MessageSquare, Mail } from 'lucide-react';
 
 interface WebsiteGeneratorProps {
   selectedModel: string;
@@ -50,14 +50,15 @@ const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({
   onGenerate, 
   onBack 
 }) => {
-  const [selectedSections, setSelectedSections] = useState<string[]>(['header', 'main', 'footer']);
+  const [selectedSections, setSelectedSections] = useState<string[]>([]); // Optional sections
 
   const websiteSections = [
-    { id: 'header', label: 'Header/Navigation', icon: Layout },
     { id: 'hero', label: 'Hero Section', icon: Palette },
-    { id: 'main', label: 'Main Content', icon: Code },
     { id: 'sidebar', label: 'Sidebar', icon: Layers },
-    { id: 'footer', label: 'Footer', icon: Layout }
+    { id: 'about', label: 'About Section', icon: User },
+    { id: 'services', label: 'Services Section', icon: Briefcase },
+    { id: 'testimonials', label: 'Testimonials Section', icon: MessageSquare },
+    { id: 'contact', label: 'Contact Section', icon: Mail }
   ];
 
   const handleGenerate = async () => {
@@ -69,11 +70,32 @@ const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({
 
     for (let attempt = 1; attempt <= 5; attempt++) {
       try {
-        const sectionsPrompt = selectedSections.length > 0 
-          ? `Include these sections: ${selectedSections.join(', ')}. ` 
-          : '';
+        // Always include header, main, footer; add optional sections if selected
+        const mandatorySections = ['header', 'main', 'footer'];
+        const allSections = [...mandatorySections, ...selectedSections];
+        const sectionsPrompt = `Include these sections: ${allSections.join(', ')}. `;
 
-        const fullPrompt = `${sectionsPrompt}${websitePrompt}. 
+        // Add specific instructions for optional sections
+        const sectionInstructions = selectedSections.map(section => {
+          switch (section) {
+            case 'hero':
+              return `Hero: Create a full-width hero section with engaging visuals, smooth parallax scrolling with floating elements, bold headline typography, and a prominent call-to-action button with hover animation.`;
+            case 'sidebar':
+              return `Sidebar: Include a responsive sidebar with interactive widgets, smooth transitions, and touch-friendly interactions for navigation or additional content.`;
+            case 'about':
+              return `About: Design an about section with animated skills bars, floating icons, and a brief description with smooth fade-in animations.`;
+            case 'services':
+              return `Services: Create a services section with interactive cards featuring 3D hover effects and concise descriptions of offerings.`;
+            case 'testimonials':
+              return `Testimonials: Include a testimonials section with client reviews, glass-morphism design, and parallax effects on review cards.`;
+            case 'contact':
+              return `Contact: Design a contact section with a modern form, smooth animations, and contact information with icons.`;
+            default:
+              return '';
+          }
+        }).filter(instruction => instruction).join(' ');
+
+        const fullPrompt = `${sectionsPrompt}${sectionInstructions} ${websitePrompt}. 
 
 IMPORTANT: Create a complete, modern, responsive HTML website following these specifications:
 
@@ -82,40 +104,45 @@ IMPORTANT: Create a complete, modern, responsive HTML website following these sp
    - Color scheme: deep blacks dark blue dark gray and professional
    - Modern, clean typography with optional subtle glow
 
-2. Hero Section:
-   - Full-width hero with engaging visuals
-   - Smooth parallax scroll with floating elements
-   - Bold headline typography
-   - Prominent call-to-action button with hover animation
+2. Mandatory Sections:
+   - Header: Glass-morphism effect with backdrop blur, smooth hover transitions, and responsive collapsible menu
+   - Main Content: Grid layouts with smooth hover scale/tilt, light particle/floating background (subtle), modern cards with shadow and 3D depth
+   - Footer: Dark gradient background, social media links with hover glow, contact info with icons, newsletter signup with sleek form
 
-3. Navigation:
-   - Glass-morphism effect with backdrop blur
-   - Smooth hover transitions and responsive collapsible menu
-
-4. Content Sections:
-   - Grid layouts with smooth hover scale/tilt
-   - Light particle/floating background (subtle)
-   - Modern cards with shadow and 3D depth
-
-5. Interactive Elements:
+3. Interactive Elements:
    - Hover tilt effects on cards
    - Scroll-triggered fade/slide animations
    - Smooth scrolling transitions
    - Simple loader animation
 
-6. Responsive Design:
+4. Responsive Design:
    - Fluid typography scaling
    - Flexible grid adapting to all screens
    - Mobile-friendly animations
    - Touch-friendly interactions
 
-7. Footer:
-   - Dark gradient background
-   - Social media links with hover glow
-   - Contact info with icons
-   - Newsletter signup with sleek form
+5. Technical Requirements:
+   - Return only a single HTML file with embedded CSS and JavaScript
+   - Use modern best practices, semantic HTML
+   - Ensure the design looks sleek and professional across all devices
+   - Respect prefers-reduced-motion for accessibility
 
-Return only a single HTML file with embedded CSS and JavaScript. Use modern best practices, semantic HTML, and ensure the design looks sleek and professional across all devices.`;
+6. Image Generation:
+   const seed = Math.floor(Math.random() * 100000);
+   let imageUrl = \`https://image.pollinations.ai/prompt/\${encodeURIComponent(websitePrompt)}?width=800&height=600&seed=\${seed}&model=\${selectedModel}&format=jpeg&nologo=true\`;
+   Embed the generated image as a link in the hero or main section if applicable.
+
+- Prioritize:
+  • Semantic HTML
+  • Responsive layouts with flex/grid
+  • Fluid typography scaling
+  • Touch-friendly interactions
+  • Accessible controls with ARIA and skip links
+  • Progressive enhancement with graceful degradation
+- Use modern CSS (variables, transitions, transforms) and unobtrusive vanilla JavaScript for interactivity (no external frameworks).
+- Ensure good performance, low CPU usage, and smooth behavior on both mobile and desktop.
+
+Return the raw HTML file content as the final response. No Markdown, no explanations, and no extra text.`;
 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
@@ -135,7 +162,7 @@ Step 1 — Planning:
 - Read the user’s request carefully.
 - Create a short structured PLAN before coding. The plan must describe:
   • Purpose of the website/tool
-  • Required sections and their roles
+  • Required sections and their roles (always include header, main, footer; include hero, sidebar, about, services, testimonials, contact only if specified)
   • Key features and interactions (only what is necessary for this request)
   • Suggested design style and color scheme
   • Technologies or APIs to be used (if any)
@@ -144,36 +171,9 @@ Step 1 — Planning:
 Step 2 — Website Generation:
 - Based on the plan, generate a single complete HTML file (DOCTYPE, <html>, <head>, <body>) containing embedded CSS and JavaScript only — no external asset downloads, no additional files, and no explanations.
 - The design must be sleek, professional, responsive, and dark-themed by default unless the plan suggests otherwise.
-
------images in website----
-
-
-           const seed = Math.floor(Math.random() * 100000);
-                    let imageUrl;
-                    switch (model) {
-                    case 'flux-pro':
-                    case 'flux-dev':
-                    case 'flux-schnell':
-                    imageUrl = https://image.pollinations.ai/prompt/{encodeURIComponent(enhancedPrompt)}?width={width}&height={height}&seed={seed}&model={model}&format=jpeg&nologo=true;
-                       
-                    
-
-
-
-use the upper api to generate image for wesbite and embed generated image as link in code .
-
-
-- Prioritize:
-  • Semantic HTML
-  • Responsive layouts with flex/grid
-  • Fluid typography scaling
-  • Touch-friendly interactions
-  • Accessible controls with ARIA and skip links
-  • Progressive enhancement with graceful degradation
-  • Respect for prefers-reduced-motion
-- Add subtle, tasteful visual effects (soft glows, hover tilt, gentle parallax) while avoiding gimmicks (large cursors, flashing, heavy particles).
-- Use modern CSS (variables, transitions, transforms) and unobtrusive vanilla JavaScript for interactivity (no external frameworks).
-- Ensure good performance, low CPU usage, and smooth behavior on both mobile and desktop.
+- Always include header, main, and footer sections.
+- Only include hero, sidebar, about, services, testimonials, and contact sections if explicitly requested by the user.
+- Use the provided image URL for embedding visuals in the hero or main section if applicable.
 
 Return the raw HTML file content as the final response. No Markdown, no explanations, and no extra text.`
               },
@@ -269,8 +269,9 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-300 mb-3">
             <Layers className="inline w-4 h-4 mr-2" />
-            Website Sections (Optional)
+            Additional Website Sections (Optional)
           </label>
+          <p className="text-gray-400 text-sm mb-2">Header, Main Content, and Footer are included by default.</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {websiteSections.map((section) => {
               const SectionIcon = section.icon;
