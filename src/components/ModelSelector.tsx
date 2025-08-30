@@ -4,9 +4,7 @@ import { Zap, Key, ChevronDown, Check, Bot, Sparkles } from 'lucide-react';
 
 // Free models from OpenRouter
 const FREE_MODELS = [
-  { id: 'openai/gpt-oss-20b:free', name: 'gpt-oss-20b', provider: 'OpenAI' },
-  { id: 'z-ai/glm-4.5-air:free', name: 'GLM 4.5 Air', provider: 'Z.AI' },
-  { id: 'qwen/qwen3-coder:free', name: 'Qwen3 Coder', provider: 'Qwen' },
+  { id: 'qwen/qwen3-coder:free', name: 'Qwen3 Coder 480B A35B', provider: 'Qwen' },
   { id: 'moonshotai/kimi-k2:free', name: 'Kimi K2', provider: 'MoonshotAI' },
   { id: 'mistralai/mistral-small-3.2-24b-instruct:free', name: 'Mistral Small 3.2 24B Instruct', provider: 'Mistral AI' },
   { id: 'qwen/qwen2.5-72b-instruct:free', name: 'Qwen2.5 72B Instruct', provider: 'Qwen' },
