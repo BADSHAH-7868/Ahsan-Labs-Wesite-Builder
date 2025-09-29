@@ -40,6 +40,14 @@ const PROMPT_EXAMPLES = [
   }
 ];
 
+const websiteSections = [
+  { id: 'header', label: 'Header/Navigation', icon: Layout },
+  { id: 'hero', label: 'Hero Section', icon: Palette },
+  { id: 'main', label: 'Main Content', icon: Code },
+  { id: 'sidebar', label: 'Sidebar', icon: Layers },
+  { id: 'footer', label: 'Footer', icon: Layout }
+];
+
 const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({ 
   selectedModel, 
   apiKey, 
@@ -51,14 +59,6 @@ const WebsiteGenerator: React.FC<WebsiteGeneratorProps> = ({
   onBack 
 }) => {
   const [selectedSections, setSelectedSections] = useState<string[]>(['header', 'main', 'footer']);
-
-  const websiteSections = [
-    { id: 'header', label: 'Header/Navigation', icon: Layout },
-    { id: 'hero', label: 'Hero Section', icon: Palette },
-    { id: 'main', label: 'Main Content', icon: Code },
-    { id: 'sidebar', label: 'Sidebar', icon: Layers },
-    { id: 'footer', label: 'Footer', icon: Layout }
-  ];
 
   const handleGenerate = async () => {
     if (!websitePrompt.trim()) return;
@@ -226,21 +226,21 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
+      <div className="bg-gray-900/50 backdrop-blur-xl rounded-xl border border-purple-900/50 p-8 shadow-lg hover:shadow-purple-500/30">
         <div className="flex items-center mb-8">
           <motion.button
-            className="mr-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+            className="mr-4 p-2 rounded-lg bg-gray-900/50 hover:bg-gray-800/50 border border-purple-900/50 hover:border-purple-500/50 transition-colors"
             onClick={onBack}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-purple-400" />
           </motion.button>
           <div>
-            <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Describe Your Website
             </h3>
-            <p className="text-gray-400">Tell the AI what kind of website you want to create</p>
+            <p className="text-gray-300">Tell the AI what kind of website you want to create</p>
           </div>
         </div>
 
@@ -249,7 +249,7 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
           {PROMPT_EXAMPLES.map((example, index) => (
             <motion.button
               key={index}
-              className="text-left p-4 bg-black/20 rounded-xl border border-white/10 hover:border-cyan-400/50 hover:bg-white/5 transition-all duration-300"
+              className="text-left p-4 bg-gray-900/50 rounded-xl border border-purple-900/50 hover:border-purple-500/50 hover:bg-gray-800/50 transition-all duration-300"
               onClick={() => setWebsitePrompt(example.prompt)}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -258,17 +258,17 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
                 <span className="text-2xl mr-3">{example.icon}</span>
                 <div>
                   <div className="font-medium text-white">{example.title}</div>
-                  <div className="text-sm text-gray-400">{example.description}</div>
+                  <div className="text-sm text-gray-300">{example.description}</div>
                 </div>
               </div>
             </motion.button>
           ))}
         </div>
 
-        {/* Website Sections */}
+        {/* Website Sections
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-300 mb-3">
-            <Layers className="inline w-4 h-4 mr-2" />
+            <Layers className="inline w-4 h-4 mr-2 text-purple-400" />
             Website Sections (Optional)
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -281,29 +281,29 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
                   key={section.id}
                   className={`p-3 rounded-lg border transition-all duration-300 flex items-center space-x-2 ${
                     isSelected
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-                      : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                      ? 'bg-purple-400/20 border-purple-400 text-purple-300'
+                      : 'bg-gray-900/50 border-purple-900/50 text-gray-300 hover:border-purple-500/50'
                   }`}
                   onClick={() => toggleSection(section.id)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <SectionIcon className="w-4 h-4" />
+                  <SectionIcon className="w-4 h-4 text-purple-400" />
                   <span className="text-sm">{section.label}</span>
                 </motion.button>
               );
             })}
           </div>
-        </div>
+        </div> */}
 
         {/* Main Prompt Input */}
         <div className="mb-8">
           <label className="block text-sm font-medium text-gray-300 mb-3">
-            <Wand2 className="inline w-4 h-4 mr-2" />
+            <Wand2 className="inline w-4 h-4 mr-2 text-purple-400" />
             Website Description
           </label>
           <motion.textarea
-            className="w-full h-32 bg-black/20 border border-white/20 rounded-xl px-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 transition-all duration-300 resize-none"
+            className="w-full h-32 bg-gray-900/50 border border-purple-900/50 rounded-xl px-4 py-4 text-white placeholder-gray-300 focus:outline-none focus:border-purple-500 transition-all duration-300 resize-none"
             placeholder="Describe your website in detail... For example: 'Create a modern pizza restaurant website with online ordering, menu showcase, and contact information. Use warm colors and include customer reviews.'"
             value={websitePrompt}
             onChange={(e) => setWebsitePrompt(e.target.value)}
@@ -316,15 +316,15 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
           <motion.button
             className={`px-8 py-4 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2 ${
               websitePrompt.trim() && !isGenerating
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/50'
+                : 'bg-gray-800/50 text-gray-300 cursor-not-allowed'
             }`}
             onClick={handleGenerate}
             disabled={!websitePrompt.trim() || isGenerating}
             whileHover={websitePrompt.trim() && !isGenerating ? { scale: 1.05 } : {}}
             whileTap={websitePrompt.trim() && !isGenerating ? { scale: 0.95 } : {}}
           >
-            <Wand2 className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`} />
+            <Wand2 className={`w-5 h-5 text-white ${isGenerating ? 'animate-spin' : ''}`} />
             <span>{isGenerating ? 'Generating...' : 'Generate Website'}</span>
           </motion.button>
         </div>
@@ -335,24 +335,24 @@ Return the raw HTML file content as the final response. No Markdown, no explanat
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="inline-flex items-center space-x-2 text-cyan-400">
+            <div className="inline-flex items-center space-x-2 text-purple-400">
               <motion.div
-                className="w-2 h-2 bg-cyan-400 rounded-full"
+                className="w-2 h-2 bg-purple-400 rounded-full"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1, repeat: Infinity, delay: 0 }}
               />
               <motion.div
-                className="w-2 h-2 bg-cyan-400 rounded-full"
+                className="w-2 h-2 bg-purple-400 rounded-full"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
               />
               <motion.div
-                className="w-2 h-2 bg-cyan-400 rounded-full"
+                className="w-2 h-2 bg-purple-400 rounded-full"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
               />
             </div>
-            <p className="text-gray-400 mt-2">The AI is crafting your website...</p>
+            <p className="text-gray-300 mt-2">The AI is crafting your website...</p>
           </motion.div>
         )}
       </div>
