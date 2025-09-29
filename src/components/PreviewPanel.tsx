@@ -20,6 +20,29 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [showCode, setShowCode] = useState(false);
 
+  // Inject scrollbar-hiding CSS into the generatedWebsite
+  const injectScrollbarStyles = (html: string) => {
+    const scrollbarStyles = `
+      <style>
+        body, html {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* Internet Explorer and Edge */
+        }
+        body::-webkit-scrollbar, html::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, and Edge */
+        }
+      </style>
+    `;
+    // Insert the styles just before </head> or at the start of the HTML
+    const headIndex = html.indexOf('</head>');
+    if (headIndex !== -1) {
+      return html.slice(0, headIndex) + scrollbarStyles + html.slice(headIndex);
+    }
+    return scrollbarStyles + html; // Fallback: prepend if no </head> found
+  };
+
+  const modifiedWebsite = injectScrollbarStyles(generatedWebsite);
+
   const getPreviewDimensions = () => {
     switch (viewMode) {
       case 'mobile':
@@ -176,7 +199,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 style={getPreviewDimensions()}
               >
                 <iframe
-                  srcDoc={generatedWebsite}
+                  srcDoc={modifiedWebsite}
                   className="w-full h-full border-none"
                   title="Website Preview"
                   sandbox="allow-scripts allow-same-origin"
