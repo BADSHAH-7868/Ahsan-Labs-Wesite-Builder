@@ -40,6 +40,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     scrollToBottom();
   }, [chatMessages]);
 
+  // Inject scrollbar-hiding CSS into the generatedWebsite
+  const injectScrollbarStyles = (html: string) => {
+    const scrollbarStyles = `
+      <style>
+        body, html {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* Internet Explorer and Edge */
+        }
+        body::-webkit-scrollbar, html::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, and Edge */
+        }
+      </style>
+    `;
+    // Insert the styles just before </head> or at the start of the HTML
+    const headIndex = html.indexOf('</head>');
+    if (headIndex !== -1) {
+      return html.slice(0, headIndex) + scrollbarStyles + html.slice(headIndex);
+    }
+    return scrollbarStyles + html; // Fallback: prepend if no </head> found
+  };
+
+  const modifiedWebsite = injectScrollbarStyles(generatedWebsite);
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isProcessing) return;
 
@@ -71,11 +94,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             messages: [
               {
                 role: 'system',
-                content: 'You are an expert web developer assistant. The user will ask you to modify an existing HTML website. Always respond with the complete updated HTML code (including CSS and JavaScript) that incorporates their requested changes. Return only the HTML code without explanations or markdown formatting.'
+                content: 'You are an expert web developer assistant. The user will ask you to modify an existing HTML website. Respond only with a JSON object containing two keys: "description" - a 2-3 line summary of the changes made (keep it concise), and "code" - the complete updated HTML code (including CSS and JavaScript) that incorporates their requested changes. Do not include any other text or formatting outside the JSON.'
               },
               {
                 role: 'user',
-                content: `Here is the current website code:\n\n${generatedWebsite}\n\nPlease make the following changes: ${inputMessage}\n\nReturn the complete updated HTML code.`
+                content: `Here is the current website code:\n\n${generatedWebsite}\n\nPlease make the following changes: ${inputMessage}\n\nReturn the JSON with description and code.`
               }
             ],
             max_tokens: 8000,
@@ -93,8 +116,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           data.choices[0]?.text ||
           '';
 
-        // Clean HTML
-        let cleanHTML = assistantResponse
+        // Parse JSON response
+        let jsonResponse;
+        try {
+          jsonResponse = JSON.parse(assistantResponse);
+        } catch (parseError) {
+          console.error('Failed to parse JSON:', parseError);
+          jsonResponse = { description: 'Error parsing response.', code: '' };
+        }
+
+        const description = jsonResponse.description || 'Changes applied as requested.';
+        let cleanHTML = jsonResponse.code || '';
+
+        // Clean HTML if necessary
+        cleanHTML = cleanHTML
           .replace(/```html|```/g, '')
           .replace(/^Here.*?:/i, '')
           .trim();
@@ -109,15 +144,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           setGeneratedWebsite(cleanHTML);
         }
 
-        // Assistant message preview (first few lines of code)
-        const previewSnippet = cleanHTML
-          ? cleanHTML.split('\n').slice(0, 3).join('\n') + '\n...'
-          : '⚠️ The AI response was empty or invalid.';
-
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
           type: 'assistant',
-          content: previewSnippet,
+          content: description,
           timestamp: new Date()
         };
 
@@ -307,13 +337,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Live Preview */}
       <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
         <div className="p-4 border-b border-white/10">
-          <h4 className="text-lg font-semibold text-white">Live Preview</h4>
+          <h4 className="text-lg font-semibold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Live Preview</h4>
           <p className="text-sm text-gray-400">See changes in real-time</p>
         </div>
         <div className="p-4">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: '400px' }}>
             <iframe
-              srcDoc={generatedWebsite}
+              srcDoc={modifiedWebsite}
               className="w-full h-full border-none"
               title="Live Website Preview"
               sandbox="allow-scripts allow-same-origin"
